@@ -1,6 +1,3 @@
--- 1. 
--- Objekt-Typ PERSON
--- Hinweis: Über NONEDITIONABLE steht nicht viel, ist hier notwendig
 CREATE OR REPLACE NONEDITIONABLE TYPE PERSON AS OBJECT (
     VNAME      VARCHAR2(20),
     NNAME      VARCHAR2(20),
@@ -21,9 +18,7 @@ CREATE OR REPLACE NONEDITIONABLE TYPE PERSON AS OBJECT (
 ) NOT FINAL;
 /
 
--- Type Body
 CREATE OR REPLACE TYPE BODY PERSON AS
-
     CONSTRUCTOR FUNCTION PERSON (
         VNAME VARCHAR2,
         NNAME VARCHAR2,
@@ -42,64 +37,68 @@ CREATE OR REPLACE TYPE BODY PERSON AS
 
     MEMBER FUNCTION AGE RETURN NUMBER IS
     BEGIN
-        RETURN EXTRACT(YEAR FROM SYSDATE) - GEBJAHR;
+        RETURN EXTRACT(YEAR FROM SYSDATE) - SELF.GEBJAHR;
     END;
 
     MEMBER PROCEDURE NeuerName(p_neuerNachname IN VARCHAR2) IS
     BEGIN
         SELF.NNAME := p_neuerNachname;
     END;
-
 END;
 /
 
--- 2
+-- ====================================
+-- 2. Anonymer Block zur Konstruktor- und Methodenprüfung
+-- ====================================
+
+BEGIN
+    DBMS_OUTPUT.PUT_LINE('--- Test Konstruktoren & Methoden ---');
+    DECLARE
+        p1 PERSON;
+        p2 PERSON;
+    BEGIN
+        p1 := PERSON('Anna', 'Schmidt', 1990, 'Käthe-Kollwitz-Str. 5', 'Berlin', NULL);
+        p2 := NEW PERSON('Lena', 'Schulze', 2000, 'Hauptstr. 1');
+        p2.NeuerName('Krause');
+
+        DBMS_OUTPUT.PUT_LINE('p1: ' || p1.VNAME || ' ' || p1.NNAME || ', Alter: ' || p1.AGE());
+        DBMS_OUTPUT.PUT_LINE('p2: ' || p2.VNAME || ' ' || p2.NNAME || ', Ort: ' || p2.ORT || ', Alter: ' || p2.AGE());
+    END;
+END;
+/
+
+-- ====================================
+-- 3. Tabelle auf Basis des Objekttyps + Daten mit REF
+-- ====================================
+
+DROP TABLE PERSONAL;
+
+CREATE TABLE PERSONAL OF PERSON
+  OBJECT IDENTIFIER IS SYSTEM GENERATED;
+
+
+INSERT INTO PERSONAL VALUES (
+    PERSON('Peter', 'Mueller', 1982, 'Hillerstr.10', 'Leipzig', NULL)
+);
 
 DECLARE
-    p1 PERSON;
-    p2 PERSON;
+    ref_mueller REF PERSON;
 BEGIN
-    -- Standardkonstruktor
-    p1 := PERSON('Anna', 'Schmidt', 1990, 'Käthe-Kollwitz-Str. 5', 'Berlin', NULL);
+    SELECT REF(p) INTO ref_mueller
+    FROM PERSONAL p
+    WHERE p.NNAME = 'Mueller';
 
-    -- Benutzerdefinierter Konstruktor (Ort = Leipzig, Manager = NULL)
-    p2 := NEW PERSON('Lena', 'Schulze', 2000, 'Hauptstr. 1');
-
-    -- Nachnamen ändern
-    p2.NeuerName('Krause');
-
-    -- Ausgabe
-    DBMS_OUTPUT.PUT_LINE('p1: ' || p1.VNAME || ' ' || p1.NNAME || ', Alter: ' || p1.AGE());
-    DBMS_OUTPUT.PUT_LINE('p2: ' || p2.VNAME || ' ' || p2.NNAME || ', Ort: ' || p2.ORT || ', Alter: ' || p2.AGE());
+    INSERT INTO PERSONAL VALUES (
+        PERSON('Horst', 'Meier', 1996, 'Herderstr.13', 'Paderborn', ref_mueller)
+    );
 END;
 /
 
---3
+-- ====================================
+-- 4. Subtyp MITARBEITER + Sequence + Insert mit REF
+-- ====================================
 
--- Tabelle auf Basis des Typs
-CREATE TABLE PERSONAL OF PERSON (
-    PRIMARY KEY (NNAME)
-)
-OBJECT IDENTIFIER IS PRIMARY KEY;
-
--- Ohne Dereferenzierung
-SELECT * FROM PERSONAL;
-
--- Mit Dereferenzierung (Name des Managers)
-SELECT
-    p.VNAME,
-    p.NNAME,
-    p.GEBJAHR,
-    p.STRASSE,
-    p.ORT,
-    DEREF(p.MANAGER).NNAME AS MANAGER_NAME
-FROM PERSONAL p;
-
-
---4
-
--- Subtyp MITARBEITER
-CREATE OR REPLACE TYPE MITARBEITER UNDER PERSON (
+CREATE OR REPLACE NONEDITIONABLE TYPE MITARBEITER UNDER PERSON (
     MA_NR NUMBER,
     ABTEILUNG VARCHAR2(30)
 );
@@ -115,10 +114,14 @@ BEGIN
     WHERE p.NNAME = 'Mueller';
 
     INSERT INTO PERSONAL VALUES (
-        MITARBEITER('Lisa', 'König', 1999, 'Markt 2', 'Leipzig', ref_mueller, MA_SEQ.NEXTVAL, 'Marketing')
+        NEW MITARBEITER('Lisa', 'König', 1999, 'Markt 2', 'Leipzig', ref_mueller, MA_SEQ.NEXTVAL, 'Marketing')
     );
 END;
 /
+
+-- ====================================
+-- 5. Ausgabe mit TREAT + Dereferenzierung
+-- ====================================
 
 SELECT
     p.VNAME,
@@ -126,4 +129,9 @@ SELECT
     TREAT(VALUE(p) AS MITARBEITER).MA_NR AS MA_NR,
     TREAT(VALUE(p) AS MITARBEITER).ABTEILUNG AS ABT,
     DEREF(p.MANAGER).NNAME AS MANAGER_NAME
-FROM PERSONAL p;
+FROM PERSONAL p
+WHERE TREAT(VALUE(p) AS MITARBEITER) IS NOT NULL;
+
+-- ====================================
+-- ENDE DES SKRIPTS
+-- ====================================

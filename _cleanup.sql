@@ -1,0 +1,39 @@
+-- Löscht die Tabelle PERSONAL, falls sie existiert
+BEGIN
+  EXECUTE IMMEDIATE 'DROP TABLE PERSONAL';
+EXCEPTION WHEN OTHERS THEN
+  IF SQLCODE != -942 THEN -- Tabelle nicht vorhanden ignorieren
+    RAISE;
+  END IF;
+END;
+/
+
+-- Löscht den Subtyp MITARBEITER, falls vorhanden
+BEGIN
+  EXECUTE IMMEDIATE 'DROP TYPE MITARBEITER';
+EXCEPTION WHEN OTHERS THEN
+  IF SQLCODE != -4043 THEN -- Typ nicht vorhanden ignorieren
+    RAISE;
+  END IF;
+END;
+/
+
+-- Löscht den Haupttyp PERSON, falls vorhanden
+BEGIN
+  EXECUTE IMMEDIATE 'DROP TYPE PERSON';
+EXCEPTION WHEN OTHERS THEN
+  IF SQLCODE != -4043 THEN
+    RAISE;
+  END IF;
+END;
+/
+
+-- Löscht die Sequenz MA_SEQ, falls vorhanden
+BEGIN
+  EXECUTE IMMEDIATE 'DROP SEQUENCE MA_SEQ';
+EXCEPTION WHEN OTHERS THEN
+  IF SQLCODE != -2289 THEN
+    RAISE;
+  END IF;
+END;
+/
