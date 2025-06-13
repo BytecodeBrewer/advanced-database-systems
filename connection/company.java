@@ -1,5 +1,6 @@
 package connection;
 
+import java.util.Scanner;
 import java.sql.*;
 
 public class Company {
@@ -81,4 +82,42 @@ public class Company {
             e.printStackTrace();
         }
     }
+
+    public void updateEMP() {
+        if (conn == null) {
+            System.out.println("Keine Verbindung zur Datenbank.");
+            return;
+        }
+
+        Scanner scanner = new Scanner(System.in);
+        try {
+            System.out.print("\nGib die Angestelltennummer ein: ");
+            int empno = scanner.nextInt();
+            scanner.nextLine(); // Rest der Zeile entfernen
+
+            System.out.print("Neuer Name: ");
+            String neuerName = scanner.nextLine();
+
+            String sql = "UPDATE emp SET ename = ? WHERE empno = ?";
+            PreparedStatement pstmt = conn.prepareStatement(sql);
+            pstmt.setString(1, neuerName);
+            pstmt.setInt(2, empno);
+
+            int zeilen = pstmt.executeUpdate();
+            if (zeilen > 0) {
+                System.out.println("Datensatz wurde erfolgreich geändert.");
+            } else {
+                System.out.println("Keine Änderung – möglicherweise falsche Personalnummer.");
+            }
+
+            pstmt.close();
+        } catch (SQLException e) {
+            System.out.println("Fehler beim UPDATE.");
+            e.printStackTrace();
+        } catch (Exception e) {
+            System.out.println("Ungültige Eingabe.");
+            e.printStackTrace();
+        }
+    }
+
 }
