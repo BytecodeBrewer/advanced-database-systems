@@ -1,0 +1,9 @@
+INSERT INTO EMP (EMPNO, ENAME, JOB, MGR, HIREDATE, SAL, COMM, DEPTNO)
+VALUES (8015, 'CLARA', 'SALESMAN', 7698, SYSDATE, 800, NULL, 20);
+COMMIT;
+
+-- Es wurde schone eingefügt, dafür muss man ein Delete Statement schreiben, um den Datensatz erneut einzufügen
+-- DELETE FROM EMP WHERE EMPNO = 8015;
+INSERT INTO EMP (EMPNO, ENAME, JOB, MGR, HIREDATE, SAL, COMM, DEPTNO)
+VALUES (8015, 'CLARA', 'CLERK', 7902, SYSDATE, 800, NULL, 20);
+COMMIT;
