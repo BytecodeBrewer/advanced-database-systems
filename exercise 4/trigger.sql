@@ -53,3 +53,13 @@ BEGIN
 END;
 /
 
+CREATE OR REPLACE TRIGGER trg_increase_sal_on_loc_change
+AFTER UPDATE OF loc ON dept
+FOR EACH ROW
+BEGIN
+    IF :OLD.loc IS NULL OR :NEW.loc IS NULL OR :NEW.loc <> :OLD.loc THEN
+        mgr_constraints_pkg.new_location(:NEW.deptno);
+    END IF;
+END;
+/
+
