@@ -39,5 +39,6 @@ public class Main {
 
         System.out.println("Programm beendet.");
         scanner.close();
+        c.close();
     }
 }
