@@ -1,48 +1,52 @@
 # Advanced Database Systems
 
-University coursework from the **Advanced Database Systems** module at HTWK Leipzig.
+A practical learning repository for database systems and concurrent programming.
 
-This repository is the practical sandbox for the parts of the module that can be made to run: Oracle SQL and PL/SQL, JDBC access from Java, object-relational mapping with JPA, and experiments around concurrency and transactions.
-
-It is coursework, not a polished database framework. Some files are deliberately kept in their original form because preserving the learning trail is more useful than pretending every exercise was born inside a perfect architecture.
+The project started with coursework around Oracle, SQL, JDBC, and JPA and is gradually expanding into concurrency, transaction handling, isolation, and experiments where database behavior and multithreaded code meet.
 
 ## Repository structure
 
 ```text
 .
-├── concurrency/             # Threading and synchronization foundations
-├── experiments/             # Database experiments and observations
-├── jdbc/                    # Java database access and Oracle driver setup
-│   ├── connection/
-│   ├── oracle/
-│   └── Main.java
-├── jpa/                     # JPA / EclipseLink exercise projects
-├── lib/                     # Local database driver dependencies
-└── sql/
-    └── object-types/        # Oracle object types, REF, inheritance, sequences
+├── database/
+│   ├── jdbc/               # Java database access and Oracle connection exercises
+│   ├── jpa/                # Persistence and ORM exercises with JPA / EclipseLink
+│   ├── lib/                # Local database dependencies used by older exercises
+│   └── sql/
+│       └── object-types/   # Oracle object types, REF, inheritance, and sequences
+│
+├── concurrency/
+│   ├── threads/
+│   ├── synchronization/
+│   ├── producer-consumer/
+│   └── thread-pools/
+│
+└── experiments/
+    ├── concurrent-db-access/
+    ├── transactions/
+    ├── isolation/
+    └── deadlocks/
 ```
 
 ## Topics
 
-- advanced SQL and PL/SQL
-- Oracle object types, methods, inheritance, REF, DEREF, TREAT, and sequences
-- JDBC connections, queries, prepared statements, and result-set metadata
-- persistence and object-relational mapping with JPA
-- concurrency, transactions, isolation, and deadlocks
+- relational and object-relational database concepts
+- SQL and PL/SQL
+- JDBC and database access from Java
+- JPA and EclipseLink
+- threads and shared state
+- synchronization and thread pools
+- transactions and isolation
+- concurrent database access
+- deadlocks and consistency problems
 
 ## Technologies
 
 - Oracle Database
-- SQL and PL/SQL
+- SQL / PL/SQL
 - Java
 - JDBC
 - JPA
 - EclipseLink
 
-## Notes
-
-The repository contains selected coursework and experiments rather than every exercise from the module.
-
-Database connection settings refer to the original university environment and must be adjusted before running the code elsewhere. The checked-in `*.class` files and JDBC driver are historical artifacts from the original exercises; future cleanup can replace them with a reproducible build setup.
-
-This repository is the database-specific practice layer. Broader algorithmic and machine-learning experiments will live separately in `data-lab`.
+The repository grows alongside the practical parts of the modules: theory lives elsewhere, code has to earn its place by actually running.
